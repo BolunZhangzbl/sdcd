@@ -8,6 +8,8 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
+from torchsummary import summary
+from tqdm import tqdm   
 
 import wandb
 
@@ -22,6 +24,7 @@ from ..utils import (
 from .base._base_model import BaseModel
 from .modules import AutoEncoderLayers
 
+# alpha and beta are the regularization parameters for the sparsity
 _DEFAULT_STAGE1_KWARGS = {
     "learning_rate": 2e-3,
     "batch_size": 256,
@@ -241,7 +244,7 @@ class SDCD(BaseModel):
                 {"fraction_edges_mask": fraction_edges_mask, "recall_mask": recall_mask}
             )
 
-        # Begin DAG training
+        # Stage 2: Begin DAG training
         dag_penalty_flavor = self._stage2_kwargs["dag_penalty_flavor"]
         self._model = AutoEncoderLayers(
             self.d,
